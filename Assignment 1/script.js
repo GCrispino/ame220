@@ -37,8 +37,6 @@ var randomColor = function(){
 
 var colorize = function(){
 	//colorizes all the boxes using random colors
-
 	for (var i = 0;i < boxStatus.length;i++)
-		//while(randomColor() != 'blue')
 		document.getElementById("button" + i).style.background = randomColor();
 }
