@@ -25,7 +25,7 @@
 			['96 x 96 (xhdpi).png',96],
 			['144 x 144 (xxhdpi).png',144],
 			['192 x 192 (xxxhdpi).png',192],
-			['512 x 512 (Google Play store).png',192]
+			['512 x 512 (Google Play store).png',512]
 		]
 
 		var initialize = function(){
@@ -37,8 +37,19 @@
 
 		}
 
+		var redimension = function(){
+			var img = document.getElementById('imagePreview');
+
+			//searchs for height and width of element 'scroll' in array 'array'
+			var heightWidth = getHeightWidth();
+
+			img.style.height = heightWidth + "px";
+			img.style.width = heightWidth + "px";
+		}
+		
 		function imageUploaded(){
    			var file = $('#inputImage').get(0);
+   			
    			if(file.files[0].type.split("/")[0].toLowerCase() != "image"){
         		alert("Incorrect file type -- Please ensure you are uploading an image file.");
    			}
@@ -73,22 +84,26 @@
 		                ctx.drawImage(img, 0, 0, w2, h2);
 		                var base64St = canvas.toDataURL("image/png");
 		                document.getElementById("imagePreview").src = base64St;
-		                document.getElementById("imagePreview").style.height = MAX_HEIGHT + "px";
-		                document.getElementById("imagePreview").style.width= MAX_WIDTH + "px";
+
+		                if (getHeightWidth() !== -1){
+		                	MAX_HEIGHT = getHeightWidth();
+		                	MAX_WIDTH = getHeightWidth();
+		                }
+
+		                document.getElementById("imagePreview").style.height = getHeightWidth() + "px";
+		                document.getElementById("imagePreview").style.width = getHeightWidth() + "px";
 		            }
 		            img.src = data;
-		        };  
+		        }  
 		        FR.readAsDataURL( file.files[0] );
 		   }
 		}
 
 		var radio = function(element){
-			if (element.id == 'ios'){
+			if (element.id == 'ios')
 				createScrollDownElements(ios);
-			}
-			else if (element.id == 'android'){
+			else if (element.id == 'android')
 				createScrollDownElements(android);
-			}
 		}
 
 		var createScrollDownElements = function(array){
@@ -98,22 +113,53 @@
 			for (var i = 0;i < array.length;i++){
 				var newOption = document.createElement('option');
 				newOption.value = array[i][0];
+				newOption.id = "option" + i;
 				newOption.innerHTML = array[i][0];
 				scrollDown.appendChild(newOption);
 			}
 
 		}
+
+		var getRadio = function(){
+			var ios = document.getElementById('ios');
+			var android = document.getElementById('android');
+
+			if (ios.checked)
+				return 'ios';
+			else if (android.checked)
+				return 'android';
+		}
+
+		var getHeightWidth = function(){
+			var radio = getRadio();
+			var array;
+			var scroll = document.getElementById('scrollDown');
+
+			if (radio == 'ios')
+				array = ios;
+			else if (radio == 'android')
+				array = android;
+
+			if (array == undefined)
+				return -1;
+
+			for (var i = 0;i < array.length;i++)
+				if (scrollDown.value == array[i][0])
+					return array[i][1];
+
+			return -1;
+		}
 	</script>
 </head>
 <body onload = "initialize()">
 
-	<form>
+	<form onchange = "redimension()">
 		<input type = "radio" name = "platform" value = "ios" id = "ios" onclick="radio(this)">iOS</input>
 		<br>
 		<input type = "radio" name = "platform" value = "android" id = "android" onclick="radio(this)">Android</input>
 	</form>
 
-	<select id = "scrollDown"></select>
+	<select id = "scrollDown" onchange = "redimension()"></select>
 	<br />
 	<input type = "file" name = "inputImage" id = "inputImage" onchange = "imageUploaded()"></input>
 	<br />
