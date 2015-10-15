@@ -68,7 +68,7 @@
       }
       else{
         $("#slide" + slideShow.currentSlide).stop().animate({"margin-left" : bw},'slow').fadeOut(0);
-        $("#slide" + next).stop().animate({"margin-left": "-" +  bw},0).fadeIn(0).animate({"margin-left":"0px"}, 'slow')
+        $("#slide" + next).stop().animate({"margin-left": "-" +  bw},0).fadeIn(0).animate({"margin-left":"  0px"}, 'slow')
       }
       slideShow.currentSlide = next;
     },
@@ -126,6 +126,18 @@
     slideShow.initialize(slideShow.obj,slideShow.animation,slideShow.currentSlide);
   }
 
+
+  /*$(document).ready(function(){
+    $('.slide').hover(function(){
+      $('.slide').fadeOut(100);
+    });
+  });*/
+
+  $(document).ready(function(){
+    $('img').click(function(){
+      alert("hey");
+    });
+  });
 
 </script>
 </head>

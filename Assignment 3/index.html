@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Assignment 3</title>
+
+	<script type="text/javascript" src = "../jquery-1.11.3.js"></script>
+
+	<script type="text/javascript">
+		var ios = [
+			['iTunesArtwork',512],
+			['iTunesArtwork@2x',1024],
+			['Icon-60@2x.png',120],
+			['Icon-60@3x.png',180],
+			['Icon-76.png',76],
+			['Icon-76@2x.png',152],
+			['Icon-Small-40.png',40],
+			['Icon-Small-40@2x.png',80],
+			['Icon-Small-40@3x.png',120],
+			['Icon-Small.png',29],
+			['Icon-Small@2x.png',58]
+		]
+		var android = [
+			['48 x 48 (mdpi).png',48],
+			['72 x 72 (hdpi).png',72],
+			['96 x 96 (xhdpi).png',96],
+			['144 x 144 (xxhdpi).png',144],
+			['192 x 192 (xxxhdpi).png',192],
+			['512 x 512 (Google Play store).png',192]
+		]
+
+		var initialize = function(){
+
+			if (document.getElementById('ios').checked)
+				createScrollDownElements(ios);
+			else if (document.getElementById('android').checked)
+				createScrollDownElements(android);
+
+		}
+
+		function imageUploaded(){
+   			var file = $('#inputImage').get(0);
+   			if(file.files[0].type.split("/")[0].toLowerCase() != "image"){
+        		alert("Incorrect file type -- Please ensure you are uploading an image file.");
+   			}
+		   	if ( file.files && file.files[0] && file.files[0].type.split("/")[0].toLowerCase() === "image") {
+		        var FR = new FileReader();
+		        FR.onload = function(e) {
+		            var data = e.target.result;
+		            var canvas = document.createElement("canvas");
+		            var img = document.createElement("img");
+		            img.onload= function(){
+		                 var MAX_WIDTH = 512;
+		                 var MAX_HEIGHT = 512;
+		                 var width = img.width;
+		                 var height = img.height;
+		                 var w2 = width;
+		                 var h2 = height;
+
+		                 if (width > height) {
+		                     if (width > MAX_WIDTH) {
+		                        h2 = height * MAX_WIDTH / width;
+		                        w2 = MAX_WIDTH;
+		                    }
+		                 } else {
+		                     if (height > MAX_HEIGHT) {
+		                        w2 = width * MAX_HEIGHT / height;
+		                        h2 = MAX_HEIGHT;
+		                    }
+		                }
+		                canvas.width = w2;
+		                canvas.height = h2;
+		                var ctx = canvas.getContext("2d");
+		                ctx.drawImage(img, 0, 0, w2, h2);
+		                var base64St = canvas.toDataURL("image/png");
+		                document.getElementById("imagePreview").src = base64St;
+		                document.getElementById("imagePreview").style.height = MAX_HEIGHT + "px";
+		                document.getElementById("imagePreview").style.width= MAX_WIDTH + "px";
+		            }
+		            img.src = data;
+		        };  
+		        FR.readAsDataURL( file.files[0] );
+		   }
+		}
+
+		var radio = function(element){
+			if (element.id == 'ios'){
+				createScrollDownElements(ios);
+			}
+			else if (element.id == 'android'){
+				createScrollDownElements(android);
+			}
+		}
+
+		var createScrollDownElements = function(array){
+			var scrollDown = document.getElementById('scrollDown');
+			$(scrollDown).html("");
+			
+			for (var i = 0;i < array.length;i++){
+				var newOption = document.createElement('option');
+				newOption.value = array[i][0];
+				newOption.innerHTML = array[i][0];
+				scrollDown.appendChild(newOption);
+			}
+
+		}
+	</script>
+</head>
+<body onload = "initialize()">
+
+	<form>
+		<input type = "radio" name = "platform" value = "ios" id = "ios" onclick="radio(this)">iOS</input>
+		<br>
+		<input type = "radio" name = "platform" value = "android" id = "android" onclick="radio(this)">Android</input>
+	</form>
+
+	<select id = "scrollDown"></select>
+	<br />
+	<input type = "file" name = "inputImage" id = "inputImage" onchange = "imageUploaded()"></input>
+	<br />
+	<img id = "imagePreview">
+
+</body>
+</html>
