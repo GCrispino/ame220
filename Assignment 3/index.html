@@ -6,6 +6,8 @@
 	<script type="text/javascript" src = "../jquery-1.11.3.js"></script>
 
 	<script type="text/javascript">
+
+		//arrays that contain the name and sizes of the icons
 		var ios = [
 			['iTunesArtwork',512],
 			['iTunesArtwork@2x',1024],
@@ -36,6 +38,7 @@
 			['512 x 512 (Google Play store).png',512]
 		]
 
+		//function that initializes the page when body is loaded
 		var initialize = function(){
 
 			if (document.getElementById('ios').checked)
@@ -45,6 +48,7 @@
 
 		}
 
+		//redimension the images according to which value is selected on the scrollbox
 		var redimension = function(){
 			var img = document.getElementById('imagePreview');
 
@@ -107,6 +111,7 @@
 		   }
 		}
 
+		//reads which radio button is selected and creates the options for the scrollbox dinamically
 		var radio = function(element){
 			if (element.id == 'ios')
 				createScrollDownElements(ios);
@@ -114,6 +119,7 @@
 				createScrollDownElements(android);
 		}
 
+		//creates the options for the scrollbox
 		var createScrollDownElements = function(array){
 			var scrollDown = document.getElementById('scrollDown');
 			$(scrollDown).html("");
@@ -128,6 +134,7 @@
 
 		}
 
+		//returns a value according to which radio button is selected
 		var getRadio = function(){
 			var ios = document.getElementById('ios');
 			var android = document.getElementById('android');
@@ -138,6 +145,8 @@
 				return 'android';
 		}
 
+		/*returns a value that indicates what height and width should the image now have, according to the
+		/option selected on the scrollbox*/
 		var getHeightWidth = function(){
 			var radio = getRadio();
 			var array;
