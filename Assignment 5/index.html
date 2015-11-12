@@ -1,0 +1,443 @@
+<html>
+<head>
+<style>
+#addNew
+{
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    margin-top: 1000px;
+    top: 0px;
+    background: rgba(0,0,0,.7);
+    transition: 1s;
+}
+
+  .clockWrapper{
+    margin: auto;
+    border: 2px solid black;
+  }
+
+  #analog{
+    width: 300px;
+    height: 300px;
+    border-radius: 150px;
+    display: block;
+  }
+
+  #digital{
+    width: 400px;
+    height: 100px;
+    border-radius: 13px;
+    display:none;
+  }
+
+  #specificAnalog{
+    display:block;
+  }
+
+  #specificDigital{
+    display: none;
+  }
+
+  #dClockText{
+    display: inherit;
+    font-size: 80px;
+    text-align: center; 
+  }
+
+  .nums
+  {
+    position: absolute;
+    top: 150px;
+    width: 290px;
+    text-align: right;
+  }
+  #n1{
+    transform: rotate(-60deg);
+  }
+  #n2{
+    transform: rotate(-30deg);
+  }
+  #n3{
+    transform: rotate(0deg);
+  }
+  #n4{
+    transform: rotate(30deg);
+  }
+  #n5{
+    transform: rotate(60deg);
+  }
+  #n6{
+    transform: rotate(90deg);
+  }
+  #n7{
+    transform: rotate(120deg);
+  }
+  #n8{
+    transform: rotate(150deg);
+  }
+  #n9{
+    transform: rotate(180deg);
+  }
+  #n10{
+    transform: rotate(210deg);
+  }
+  #n11{
+    transform: rotate(240deg);
+  }
+  #n12{
+    transform: rotate(270deg);
+  }
+  .needle
+  {
+     margin-top: 150px;
+     position: absolute;
+     width: 300px;
+     line-height: 0px;
+  }
+  .needle span
+  {
+      display: block;
+      width: auto;
+      margin-left: 140px;
+     text-align: left;
+  }
+  #hour span{
+    background-color: red;
+    max-width: 100px;
+    height: 2px;
+  }
+  #min span{
+    background-color: blue;
+    max-width: 120px;
+    height: 2px;
+  }
+  #secs span{
+    background-color: black;
+    max-width: 135px;
+    height: 1px;
+  }
+
+  .option p{
+    display: inline;
+  }
+
+  #bgcolor{
+    display: inline;
+  }
+
+</style>
+
+<script>
+  var HOURS = 1, MINUTES = 2, SECONDS = 3;
+  var ANALOG = 1,DIGITAL = 2;
+  var clockType = ANALOG;
+  var change = true;
+
+  function updateClock(date)
+  {
+    var clockHTML;
+    var analogClock = document.getElementById('analog');
+    var digitalClock = document.getElementById('digital');
+    var specificDigital = document.getElementById('specificDigital');
+    var specificAnalog = document.getElementById('specificAnalog');
+
+
+    date = date || new Date();
+    var h = date.getHours() % 12;
+    var m = date.getMinutes();
+    var s = date.getSeconds();
+
+    var specificOptions = "";
+
+    if (clockType == ANALOG){
+
+      var hdeg = (h - 3)*30;
+      var mdeg = (m - 15)*6;
+      var sdeg = (s - 15)*6;
+      document.getElementById("hour").style.transform = "rotate(" + hdeg + "deg)";
+      document.getElementById("min").style.transform = "rotate(" + mdeg + "deg)";
+      document.getElementById("secs").style.transform = "rotate(" + sdeg + "deg)";
+
+      if (specificAnalog.style.display = "none"){
+        specificAnalog.style.display = "block";
+        analogClock.style.display = "block";
+      }
+      if (specificDigital.style.display = "block"){
+        specificDigital.style.display = "none";
+        digitalClock.style.display = "none";
+      }
+
+    }
+    else{
+      
+      document.getElementById('dClockText').innerHTML = h + " : " + m + " : " + s;
+
+      if (specificDigital.style.display = "none"){
+        specificDigital.style.display = "block";
+        digitalClock.style.display = "block";
+      }
+
+      if (specificAnalog.style.display = "block"){
+        specificAnalog.style.display = "none";
+        analogClock.style.display = "none";
+      }
+    }
+
+
+  }
+
+  function startUp()
+  {
+    var clockTypeRadioElements = document.getElementById('clockType');
+    var analog = clockTypeRadioElements[0];
+    var digital = clockTypeRadioElements[1];
+
+    if (analog.checked)
+      clockType = ANALOG;
+    else if (digital.checked)
+      clockType = DIGITAL;
+
+    generateMyTimeZoneList();
+    setInterval("updateClock(null)", 1000);
+
+    initializeColors();
+  }
+
+  function changeClockType(type){
+    change = true;
+    clockType = type;
+  }
+
+  function cancelTimeZone()
+  {
+    document.getElementById("addNew").style.marginTop = "1000px";
+    setTimeout(addNewTZ_Aux1, 500);
+  }
+
+  function addNewTZ()
+  {
+    document.getElementById("addNew").style.display = "block";
+    setTimeout(addNewTZ_Aux, 500);
+  }
+
+  function addNewTZ_Aux(){
+    document.getElementById("addNew").style.marginTop = "0px";
+  }
+
+  function addNewTZ_Aux1(){
+    document.getElementById("addNew").style.display = "none";
+  }
+
+  function generateMyTimeZoneList(){
+    var outS = "";
+
+    outS += "<a href='javascript:TZSelected(-1)'> Current Location </a><br>";
+
+    // generate markup
+
+    outS += "<a href='javascript:addNewTZ()'>+ New </a>";
+
+
+    document.getElementById("placeList").innerHTML = outS;
+  
+  }
+
+  function TZSelected(a)
+  {
+    if(a == -1)
+      updateClock(null);
+  }
+
+  function updateNeedleSize(type){
+    var newSize;
+    var idInput,idNeedle;
+
+    switch(type){
+      case HOURS:
+        idInput = "hoursSize";
+        idNeedle = "spanHour";
+        break;
+      case MINUTES:
+        idInput = "minutesSize";
+        idNeedle = "spanMin";
+        break;
+      case SECONDS:
+        idInput = "secondsSize";
+        idNeedle = "spanSec";
+        break;
+    }
+
+    newSize = document.getElementById(idInput).value
+
+    if (isNaN(newSize) || newSize < 0)
+      alert("Invalid input!");
+
+    document.getElementById(idNeedle).style.maxWidth = newSize + "px";
+  }
+
+
+  function initializeColors(){
+    //initialize color dropdowns' values
+    var dropdowns = document.getElementsByClassName('bgColor');
+    var option = "";
+
+    for (var j = 0;j < dropdowns.length;j++)
+      for (var i = 0; i <= 255;i++){
+        option = "<option value = '" + i + "'>" + i + "</option>"
+        dropdowns[j].innerHTML += option;
+      }
+
+  }
+
+  function updateColor(){
+    var clocks = document.getElementsByClassName('clockWrapper');
+    var red = document.getElementById('red').value;
+    var green = document.getElementById('green').value;
+    var blue = document.getElementById('blue').value;
+
+    clocks[0].style.backgroundColor = "rgb(" + red + "," + green + "," + blue + ")";
+    clocks[1].style.backgroundColor = clocks[0].style.backgroundColor;
+  }
+
+  function updateDClockFontColor(){
+    var clockText = document.getElementById('dClockText');
+    var red = document.getElementById('fontRed').value;
+    var green = document.getElementById('fontGreen').value;
+    var blue = document.getElementById('fontBlue').value;
+
+    clockText.style.color = "rgb(" + red + "," + green + "," + blue + ")";
+  }
+
+  function updateDClockFontSize(){
+    var newSize = document.getElementById('dclockFont').value;
+    var oldSize = parseFloat(window.getComputedStyle(document.getElementById('dClockText'), null).getPropertyValue('font-size'));
+
+    if (isNaN(newSize) || newSize < 0)
+      alert("Invalid input!");
+    else if(newSize > 90)
+      newSize = 90;
+
+    document.getElementById('dClockText').style.fontSize = newSize + "px";
+
+    var newWidth = parseInt(window.getComputedStyle(document.getElementById('digital'), null).getPropertyValue('width')) * (newSize / oldSize);
+    var newHeight = parseInt(window.getComputedStyle(document.getElementById('digital'), null).getPropertyValue('height')) * (newSize / oldSize);
+
+
+    if (parseInt(newSize)/parseFloat(oldSize) != NaN){
+      document.getElementById('digital').style.width = newWidth + "px";
+      document.getElementById('digital').style.height =  newHeight + "px";
+    }
+
+  }
+
+  var myTimeZones = [];  
+
+</script>
+</head>
+
+<body onload='startUp()'>
+  <div class='clockWrapper' id="analog">
+      <div class='nums' id='n1'> - </div>
+      <div class='nums' id='n2'> - </div> 
+      <div class='nums' id='n3'> = </div> 
+      <div class='nums' id='n4'> - </div> 
+      <div class='nums' id='n5'> - </div> 
+      <div class='nums' id='n6'> = </div> 
+      <div class='nums' id='n7'> - </div> 
+      <div class='nums' id='n8'> - </div> 
+      <div class='nums' id='n9'> = </div> 
+      <div class='nums' id='n10'> - </div> 
+      <div class='nums' id='n11'> - </div> 
+      <div class='nums' id='n12'> = </div>
+      <div class='needle' id='hour'><span id = 'spanHour'> </span></div> 
+      <div class='needle' id='min'><span id = 'spanMin'> </span> </div>
+      <div class='needle' id='secs'><span id = 'spanSec'> </span></div>
+  </div>
+
+
+  <div class="clockWrapper" id = "digital">
+    <span id="dClockText"></span>
+  </div>
+
+  <br>
+
+  <div id='placeList'> </div>
+
+  <div id="addNew"> 
+      <select id='timeZones'>
+        <option value='-12:00'> US minor islands (-12:00) </option>
+        <option value='-11:00'> Hawaii (-11:00) </option>
+        <option value='-10:00'> New Zealand (-10:00) </option>
+        <option value='-09:30'> French Polynesia (-9:30) </option>
+      </select>
+      <a href='javascript:addTimeZone()'> Add </a>
+      <a href='javascript:cancelTimeZone()'> Cancel </a>
+  </div>
+
+  <br>
+  <form id = "clockType">
+    <input type="radio" name = "type" value="analog" onclick='javascript:changeClockType(ANALOG)'>Analog
+    <input type="radio" name = "type" value="digital" onclick='javascript:changeClockType(DIGITAL)'>Digital
+  </form>
+
+  <p style="display: inline"><u>Customization: </u></p>
+  <br/>
+
+
+  <div class="option">
+      <p>Clock background color:</p>
+      <p>Red</p>
+      <select class = "bgColor" id = "red"></select>
+      <p>Green</p>
+      <select class = "bgColor" id = "green"></select>
+      <p>Blue</p>
+      <select class = "bgColor" id = "blue"></select>
+      <button onclick = "updateColor()">Change!</button>
+  </div>
+
+  <br/>
+
+
+  <div class="specificOptions" id = "specificAnalog">
+
+    <div class="option">
+      
+      <p>Hours needle size(in px):</p>
+      <input type='text' id = 'hoursSize'> <button onclick='updateNeedleSize(HOURS)'>Change!</button>
+      <br/>
+      <p>Minutes needle size(in px):</p>
+      <input type='text' id = 'minutesSize'> <button onclick='updateNeedleSize(MINUTES)'>Change!</button>
+      <br/>
+      <p>Seconds needle size(in px):</p>
+      <input type='text' id = 'secondsSize'> <button onclick='updateNeedleSize(SECONDS)'>Change!</button>
+      <br/>
+
+    </div>
+
+  </div>
+
+
+  <div class="specificOptions" id = "specificDigital">
+    <div class="option"> 
+      <p>Digital Clock font color:</p>
+      <p>Red</p>
+      <select class = "bgColor" id = "fontRed"></select>
+      <p>Green</p>
+      <select class = "bgColor" id = "fontGreen"></select>
+      <p>Blue</p>
+      <select class = "bgColor" id = "fontBlue"></select>
+      <button onclick = "updateDClockFontColor()">Change!</button>
+    </div>
+
+    <p>Digital Clock font Size(in px, max 90px):</p> 
+    <input type='text' id = 'dclockFont'><button onclick='updateDClockFontSize()'>Change!</button>
+
+    <br/>
+
+  </div>
+
+</body>
+
+</html>
