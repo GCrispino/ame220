@@ -127,6 +127,28 @@
     display: inline;
   }
 
+  .fadeOut{
+    animation: fadeout 1s;
+    animation-fill-mode:forwards;
+  }
+
+  .fadeIn{
+    animation: fadein 1s;
+    animation-fill-mode:forwards;
+  }
+
+    /*animations: */
+
+    @keyframes fadeout{
+        0% {opacity: 1;}
+        100% {opacity: 0;}
+    }
+
+    @keyframes fadein{
+        0% {opacity: 0;}
+        100% {opacity: 1;}
+    }
+
 </style>
 
 <script>
@@ -161,12 +183,11 @@
       document.getElementById("secs").style.transform = "rotate(" + sdeg + "deg)";
 
       if (specificAnalog.style.display = "none"){
-        specificAnalog.style.display = "block";
-        analogClock.style.display = "block";
-      }
-      if (specificDigital.style.display = "block"){
-        specificDigital.style.display = "none";
-        digitalClock.style.display = "none";
+        fadeIn(analogClock);
+        fadeIn(specificAnalog);
+
+        fadeOut(digitalClock);
+        fadeOut(specificDigital);
       }
 
     }
@@ -175,13 +196,11 @@
       document.getElementById('dClockText').innerHTML = h + " : " + m + " : " + s;
 
       if (specificDigital.style.display = "none"){
-        specificDigital.style.display = "block";
-        digitalClock.style.display = "block";
-      }
+        fadeIn(digitalClock);
+        fadeIn(specificDigital);
 
-      if (specificAnalog.style.display = "block"){
-        specificAnalog.style.display = "none";
-        analogClock.style.display = "none";
+        fadeOut(analogClock);
+        fadeOut(specificAnalog);
       }
     }
 
@@ -311,10 +330,10 @@
   }
 
   function updateDClockFontSize(){
-    var newSize = document.getElementById('dclockFont').value;
+    var newSize = parseInt(document.getElementById('dclockFont').value);
     var oldSize = parseFloat(window.getComputedStyle(document.getElementById('dClockText'), null).getPropertyValue('font-size'));
 
-    if (isNaN(newSize) || newSize < 0)
+    if (isNaN(newSize) || newSize < 0 || newSize)
       alert("Invalid input!");
     else if(newSize > 90)
       newSize = 90;
@@ -324,13 +343,41 @@
     var newWidth = parseInt(window.getComputedStyle(document.getElementById('digital'), null).getPropertyValue('width')) * (newSize / oldSize);
     var newHeight = parseInt(window.getComputedStyle(document.getElementById('digital'), null).getPropertyValue('height')) * (newSize / oldSize);
 
-
     if (parseInt(newSize)/parseFloat(oldSize) != NaN){
       document.getElementById('digital').style.width = newWidth + "px";
       document.getElementById('digital').style.height =  newHeight + "px";
     }
 
   }
+
+  function fadeOut(element){
+
+      element.classList.add('fadeOut');
+
+      setTimeout(function(){changeDisplay(element,0)},1000);
+
+      if (element.classList.contains('fadeIn'))
+          element.classList.remove('fadeIn')
+    }
+
+    function fadeIn(element){
+
+      element.style.display = 'block';
+      element.classList.add('fadeIn');
+
+
+      if (element.classList.contains('fadeOut'))
+          element.classList.remove('fadeOut')
+    }
+
+    function changeDisplay(element,type){
+      if (type == 0)
+        element.style.display = "none"
+      else if (type == 1)
+        element.style.display = "block"
+      else if (type == 2)
+        element.style.display = "inline"
+    }
 
   var myTimeZones = [];  
 
