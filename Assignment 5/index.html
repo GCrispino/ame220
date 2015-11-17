@@ -47,8 +47,9 @@
 
   #dClockText{
     display: inherit;
-    font-size: 80px;
+    font-size: 70px;
     text-align: center; 
+    font-family: Arial;
   }
 
   #dClockFontInput{
@@ -178,6 +179,28 @@
   var ANALOG = 1,DIGITAL = 2;
   var clockType = ANALOG;
   var change = true;
+  var timeZones = [];
+  var timeZoneDifference = 0;
+  var currentTimeZoneIndex = 0;
+
+
+  function startUp()
+  {
+    var clockTypeRadioElements = document.getElementById('clockType');
+    var analog = clockTypeRadioElements[0];
+    var digital = clockTypeRadioElements[1];
+
+    if (analog.checked)
+      clockType = ANALOG;
+    else if (digital.checked)
+      clockType = DIGITAL;
+
+    generateMyTimeZoneList();
+    setInterval("updateClock(null)", 1000);
+
+    initializeColors();
+    initializeTimeZones();
+  }
 
   function updateClock(date)
   {
@@ -189,7 +212,11 @@
 
 
     date = date || new Date();
-    var h = date.getHours() % 12;
+    console.log(date.getUTCHours(),parseInt(timeZones[currentTimeZoneIndex]));
+    var h = (date.getUTCHours() + parseInt(timeZones[currentTimeZoneIndex])) % 12;
+    if (h < 0)
+      h = (date.getUTCHours() + 12 + parseInt(timeZones[currentTimeZoneIndex])) % 12;
+    h %= 12;
     var m = date.getMinutes();
     var s = date.getSeconds();
 
@@ -226,29 +253,58 @@
       }
     }
 
-
   }
 
-  function startUp()
-  {
-    var clockTypeRadioElements = document.getElementById('clockType');
-    var analog = clockTypeRadioElements[0];
-    var digital = clockTypeRadioElements[1];
-
-    if (analog.checked)
-      clockType = ANALOG;
-    else if (digital.checked)
-      clockType = DIGITAL;
-
-    generateMyTimeZoneList();
-    setInterval("updateClock(null)", 1000);
-
-    initializeColors();
-  }
 
   function changeClockType(type){
     change = true;
     clockType = type;
+  }
+
+  function addTimeZone(){
+    var timeZoneSelector = document.getElementById('timeZones');
+    var tzName,tzHour;
+    var invalidTZ = true;
+
+    while (invalidTZ){
+      tzName = prompt("Please enter name of time zone: ");
+      do{
+        tzHour = prompt("Please enter the UTC hour of the time zone: ");
+        if(parseInt(tzHour) > 0){
+          if (parseInt(tzHour) < 10)
+            tzHour = "0" + tzHour;
+          tzHour = "+" + tzHour;
+        }
+        else if (parseInt(tzHour) > -10)
+            tzHour = tzHour[0] + "0" + tzHour.substring(2,tzHour.length - 1);
+        if (parseInt(tzHour) < -12 || parseInt(tzHour) > 14){
+          alert("Invalid input!");
+          invalidTZ = true;
+        }
+        else
+          invalidTZ = false;
+
+        if (timeZones.indexOf(tzHour + ":00") != -1){
+          alert("Time zone already added!");
+          invalidTZ = true;
+        }
+        else
+          invalidTZ = false;
+
+
+      }while(parseInt(tzHour) < -12 || parseInt(tzHour) > 14);
+
+      if (invalidTZ)
+        alert("Invalid Time Zone!");
+      else{
+        var newTZ = tzName + " (" + tzHour + ":00)";
+        timeZoneSelector.innerHTML += "<option value = '" + tzHour + ":00'>" + newTZ + "</option>";
+
+        timeZones.push("" + tzHour + ":00");
+        break;
+      }
+    }
+    
   }
 
   function cancelTimeZone()
@@ -274,21 +330,28 @@
   function generateMyTimeZoneList(){
     var outS = "";
 
-    outS += "<a href='javascript:TZSelected(-1)'> Current Location </a><br>";
+    outS += "<a href='javascript:TZSelected()'> Current Location </a><br>";
 
     // generate markup
 
-    outS += "<a href='javascript:addNewTZ()'>+ New </a>";
+    outS += "<a href='javascript:addNewTZ()'>Change Time Zone </a>";
 
 
     document.getElementById("placeList").innerHTML = outS;
   
   }
 
-  function TZSelected(a)
+  function TZSelected()
   {
-    if(a == -1)
-      updateClock(null);
+    var TZSelector = document.getElementById('timeZones');
+    var TZHour = timeZones[currentTimeZoneIndex];
+    var nameTZ;
+
+    for (var i = 0;i < TZSelector.length;i++)
+      if (TZSelector[i].value == TZHour)
+        nameTZ = TZSelector[i].innerHTML;
+
+    alert("Current time zone: " + nameTZ);
   }
 
   function updateNeedleSize(type){
@@ -312,7 +375,7 @@
 
     newSize = document.getElementById(idInput).value
 
-    if (isNaN(newSize) || newSize < 0){
+    if (isNaN(newSize) || newSize < 0 || newSize > 100){
       var inputElement;
       if (idInput == "hoursSize")
         inputElement = "hoursInput";
@@ -356,6 +419,38 @@
     clocks[1].style.backgroundColor = clocks[0].style.backgroundColor;
   }
 
+  function initializeTimeZones(){
+    var timeZoneSelector = document.getElementById('timeZones');
+
+    for (var i = 0;i < timeZoneSelector.length;i++)
+      timeZones[i] = timeZoneSelector[i].value;
+
+  }
+
+  function updateTimeZone(){
+    var currentTZ = timeZones[currentTimeZoneIndex];
+    var TZSelector = document.getElementById('timeZones');
+    var hour = new Date().getHours() - 12;
+
+    var newTZ = TZSelector.value;
+
+    var currentHour = parseInt(currentTZ.substring(0,currentTZ.indexOf(':')));
+
+    var difference = Math.abs(currentHour - parseInt(newTZ));
+
+    if (currentHour > parseInt(newTZ))
+      difference = -difference;
+
+    timeZoneDifference = difference;
+
+    console.log(timeZoneDifference);
+
+    for (var i = 0;i < TZSelector.length;i++)
+      if (TZSelector[i].value == newTZ)
+        currentTimeZoneIndex = i;
+
+  }
+
   function updateDClockFontColor(){
     var clockText = document.getElementById('dClockText');
     var red = document.getElementById('fontRed').value;
@@ -369,7 +464,7 @@
     var newSize = parseInt(document.getElementById('dclockFont').value);
     var oldSize = parseFloat(window.getComputedStyle(document.getElementById('dClockText'), null).getPropertyValue('font-size'));
 
-    if (isNaN(newSize) || newSize < 0 || newSize){
+    if (isNaN(newSize) || newSize < 0 || newSize > 90){
       var fontInput = document.getElementById('dClockFontInput')
 
       fontInput.className = "shake animated";
@@ -457,14 +552,15 @@
   <div id='placeList'> </div>
 
   <div id="addNew"> 
-      <select id='timeZones'>
-        <option value='-12:00'> US minor islands (-12:00) </option>
-        <option value='-11:00'> Hawaii (-11:00) </option>
+      <select id='timeZones' onchange = "javascript:updateTimeZone()">
+        <option value='-07:00' selected="selected">Canada, Arizona (-07:00)</option>
+        <option value='-09:30'> French Polynesia (-09:30) </option>
         <option value='-10:00'> New Zealand (-10:00) </option>
-        <option value='-09:30'> French Polynesia (-9:30) </option>
+        <option value='-11:00'> Hawaii (-11:00) </option>
+        <option value='-12:00'> US minor islands (-12:00) </option>
       </select>
       <a href='javascript:addTimeZone()'> Add </a>
-      <a href='javascript:cancelTimeZone()'> Cancel </a>
+      <a href='javascript:cancelTimeZone()'> Back </a>
   </div>
 
   <br>
@@ -496,18 +592,18 @@
     <div class="option">
       
       <span id = "hoursInput">
-        <p>Hours needle size(in px):</p>
+        <p>Hours needle size(in px, max 100px):</p>
         <input type='text' id = 'hoursSize'> <button onclick='updateNeedleSize(HOURS)'>Change!</button>
       </span>
       <br/>
 
       <span id = "minutesInput">
-        <p>Minutes needle size(in px):</p>
+        <p>Minutes needle size(in px, max 100px):</p>
         <input type='text' id = 'minutesSize'> <button onclick='updateNeedleSize(MINUTES)'>Change!</button>
       </span>
       <br/>
       <span id = "secondsInput">
-        <p>Seconds needle size(in px):</p>
+        <p>Seconds needle size(in px, max 100px):</p>
         <input type='text' id = 'secondsSize'> <button onclick='updateNeedleSize(SECONDS)'>Change!</button>
       </span>
       <br/>
