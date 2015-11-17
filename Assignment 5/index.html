@@ -212,7 +212,6 @@
 
 
     date = date || new Date();
-    console.log(date.getUTCHours(),parseInt(timeZones[currentTimeZoneIndex]));
     var h = (date.getUTCHours() + parseInt(timeZones[currentTimeZoneIndex])) % 12;
     if (h < 0)
       h = (date.getUTCHours() + 12 + parseInt(timeZones[currentTimeZoneIndex])) % 12;
@@ -442,8 +441,6 @@
       difference = -difference;
 
     timeZoneDifference = difference;
-
-    console.log(timeZoneDifference);
 
     for (var i = 0;i < TZSelector.length;i++)
       if (TZSelector[i].value == newTZ)
