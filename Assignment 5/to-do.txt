@@ -1,2 +1,0 @@
-shake when input is not valid
-animate colors somewhere
